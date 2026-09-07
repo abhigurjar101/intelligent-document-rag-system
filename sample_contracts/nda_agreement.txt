@@ -1,0 +1,16 @@
+NON-DISCLOSURE AND CONFIDENTIALITY AGREEMENT
+
+1. DEFINITION OF CONFIDENTIAL INFORMATION
+"Confidential Information" shall refer to all proprietary technical data, algorithms, trade secrets, source code, customer records, and financial projections disclosed by Disclosing Party to Receiving Party, whether in oral, written, or machine-readable format.
+
+2. EXCLUSIONS FROM CONFIDENTIALITY
+Confidential Information does not include information that: (a) is or becomes publicly known through no breach by Receiving Party; (b) was already known to Receiving Party prior to disclosure as evidenced by written records; or (c) is independently developed without reference to Disclosing Party's proprietary assets.
+
+3. OBLIGATIONS OF RECEIVING PARTY
+Receiving Party agrees to hold Confidential Information in strict confidence, exercising at least reasonable care. Receiving Party shall not disclose, replicate, or transfer any proprietary assets to third parties without prior written consent, except to employees who have a legitimate need-to-know and are bound by equivalent non-disclosure terms.
+
+4. TERM AND SURVIVAL
+This Agreement remains effective for three (3) years from the Effective Date. All confidentiality covenants and non-disclosure obligations shall survive the expiration or termination of this Agreement for an additional period of five (5) years.
+
+5. GOVERNING LAW & DISPUTE RESOLUTION
+This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware, without giving effect to conflicts of law principles. Any dispute arising under this Agreement shall be resolved through binding arbitration.
