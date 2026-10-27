@@ -13,12 +13,16 @@ from typing import List, Dict, Any
 
 def chunk_document(text: str, chunk_size: int = 250) -> List[str]:
     """Chunks text preserving numbered section headers and paragraphs."""
+    if isinstance(chunk_size, bool) or not isinstance(chunk_size, int) or chunk_size <= 0:
+        raise ValueError("chunk_size must be a positive integer")
     sections = re.split(r'\n(?=[0-9]+\.\s+)', text.strip())
     chunks = []
     for s in sections:
         cleaned = s.strip()
         if cleaned:
-            chunks.append(cleaned)
+            words = cleaned.split()
+            chunks.extend(" ".join(words[i:i + chunk_size])
+                          for i in range(0, len(words), chunk_size))
     return chunks
 
 
@@ -62,12 +66,17 @@ class DocumentRAGEngine:
             })
 
         # Build vocabulary across all chunks
-        all_words = set(re.findall(r'\b[a-zA-Z]{3,}\b', content.lower()))
+        all_words = set(re.findall(
+            r'\b[a-zA-Z]{3,}\b', " ".join(c["text"] for c in self.chunks).lower()))
         self.vocab = {w: i for i, w in enumerate(sorted(all_words))}
         self.vectors = [compute_tf_vector(c["text"], self.vocab) for c in self.chunks]
         print(f"Indexed {len(self.chunks)} clauses from '{filename}'.")
 
     def query(self, question: str, top_k: int = 2) -> Dict[str, Any]:
+        if not isinstance(question, str) or not question.strip():
+            raise ValueError("question must be non-empty text")
+        if isinstance(top_k, bool) or not isinstance(top_k, int) or top_k <= 0:
+            raise ValueError("top_k must be a positive integer")
         if not self.chunks:
             return {"error": "Knowledge base is empty."}
 
@@ -78,7 +87,11 @@ class DocumentRAGEngine:
             scored.append((sim, c))
 
         scored.sort(key=lambda x: x[0], reverse=True)
-        top_matches = scored[:top_k]
+        top_matches = [(score, chunk) for score, chunk in scored if score > 0][:top_k]
+        if not top_matches:
+            return {"question": question, "citations": [], "relevance_score": 0.0,
+                    "answer": "No matching evidence was found in the indexed documents.",
+                    "retrieved_context": []}
 
         context_blocks = []
         citations = []
@@ -88,7 +101,7 @@ class DocumentRAGEngine:
 
         # Factual answer synthesis based on top matching clause
         best_text = top_matches[0][1]["text"] if top_matches else ""
-        answer = f"According to verified legal clause ({top_matches[0][1]['id']}): {best_text.splitlines()[0]} - {best_text}"
+        answer = f"Retrieved excerpt ({top_matches[0][1]['id']}): {best_text.splitlines()[0]} - {best_text}"
 
         return {
             "question": question,
@@ -123,7 +136,7 @@ def main():
         print(f"   • Grounded Answer:\n     {res['answer']}")
 
     print("\n" + "=" * 80)
-    print("✅ All document RAG queries verified successfully!")
+    print("Demo complete. Run the test suite for assertions.")
     print("=" * 80)
 
 

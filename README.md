@@ -1,78 +1,33 @@
-# Intelligent Document Question-Answering System (RAG) 📜🤖
+# Document retrieval baseline
 
-> **An enterprise Retrieval-Augmented Generation (RAG) system for extracting verified answers and clause citations from complex legal contracts and regulatory documents by Abhi Gurjar.**
+A small, inspectable Python baseline for document question answering. It splits UTF-8 text into numbered sections and bounded word chunks, builds normalized term-frequency vectors, ranks chunks by cosine similarity, and returns source excerpts with citations.
 
----
+This repository provides a lexical retrieval baseline for the document-search work described in my CV. The command-line engine does not use an LLM, LangChain, FAISS, Qdrant, or neural embeddings. The notebook is a separate exploration; its optional dependencies are listed in `requirements.txt`.
 
-## 💡 What Is This Project? (Explained Like a Human)
-
-In corporate legal departments, banks, and procurement teams, attorneys and paralegals spend hundreds of hours reviewing non-disclosure agreements (NDAs), master service agreements (MSAs), and vendor contracts.
-
-Finding answers to basic compliance questions—such as *"Which state's law governs this dispute?"* or *"How long do confidentiality covenants survive after termination?"*—traditionally required manual page-by-page scanning. If a key clause was overlooked, the company could face millions in liability.
-
-**This project implements an Intelligent Document RAG System.** 
-- It ingests unstructured legal agreements, extracts structured clause sections without breaking thoughts in half, and indexes them into high-dimensional vector representations.
-- When an attorney asks a plain English question, the engine retrieves the exact contractual clause and synthesizes a direct, cited answer.
-- **Zero hallucinations**: Every statement cites the exact contract file and clause number.
-
----
-
-## 🏛️ Pipeline Architecture
-
-```
-[ Raw Legal PDF / TXT Agreements ]
-               │
-               ▼
-   [ Clause & Section Chunker ]
-               │
-               ▼
-    [ Vector Index & FAISS ]
-               │
-   ┌───────────┴───────────┐
-   ▼                       ▼
-[ Question Input ] ──► [ Semantic Search ] ──► [ Grounded Cited Answer ]
-```
-
----
-
-## 🚀 How to Run in 5 Seconds
-
-Zero external API keys or paid cloud setups required to test the local engine:
+## Run
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/abhigurjar101/intelligent-document-rag-system.git
 cd intelligent-document-rag-system
-
-# 2. Run the interactive RAG question-answering runner
 python3 rag_engine.py
+python3 -m unittest discover -s tests -v
 ```
 
-### What You Will See:
-- Rapid ingestion and section indexing of `sample_contracts/nda_agreement.txt`.
-- Semantic search across 3 complex legal questions (survival periods, governing law, confidentiality exclusions).
-- Exact clause-by-clause citation output with similarity confidence scores.
+The CLI and tests use Python's standard library. The bundled NDA is demonstration text, not legal advice or a client document.
 
----
+## How it works
 
-## 📁 Repository Structure
+`ingest_file(path)` reads text, chunks it, rebuilds the vocabulary across all indexed chunks, and recomputes vectors. `query(question, top_k=2)` returns excerpts with `filename#clause_N` identifiers. Queries with no token overlap return no evidence. Similarity is a retrieval score, not a probability of correctness.
 
-```
-intelligent-document-rag-system/
-├── notebooks/
-│   └── Extracting_Information_from_Legal_Documents_Using_RAG.ipynb  # End-to-end RAG development notebook
-├── sample_contracts/
-│   └── nda_agreement.txt                                            # Standard enterprise NDA test agreement
-├── rag_engine.py                                                    # Standalone document RAG engine
-├── requirements.txt                                                 # Dependencies (LangChain, FAISS, Sentence Transformers)
-└── README.md                                                        # You are here! Simple human documentation
-```
+## Limits and next experiments
 
----
+Storage is in memory; PDF parsing, duplicate-ingestion handling, persistent indexes, access control, and a trained reranker are not implemented in the CLI. Lexical overlap can miss paraphrases and retrieve passages that share words but do not answer the question. Evaluate recall@k and citation accuracy on a labeled question set before comparing this baseline with a neural RAG system. No accuracy or business-impact benchmark is claimed.
 
-## 👤 Author
+## Structure
 
-**Abhi Gurjar**  
-- Portfolio: [abhigurjar.vercel.app](https://abhigurjar.vercel.app)  
-- GitHub: [@abhigurjar101](https://github.com/abhigurjar101)  
-- LinkedIn: [Abhi Gurjar](https://in.linkedin.com/in/abhi-gurjar-b13067203)
+- `rag_engine.py`: baseline and CLI demonstration
+- `sample_contracts/`: sample input
+- `notebooks/`: separate legal-document exploration
+- `tests/`: regression tests for multi-file retrieval, no-match behavior, chunk bounds and validation
+
+[Abhi Kumar Gurjar](https://www.linkedin.com/in/abhigurjar) · Data Scientist & GenAI Engineer
